@@ -1,0 +1,114 @@
+<!doctype html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="theme-color" content="#fbfaf8">
+<title>study note — 勉強時間記録</title>
+<style>
+:root{--bg:#fbfaf8;--paper:#fff;--ink:#292927;--muted:#96938e;--line:#eeeae5;--accent:#b9c9bd;--shadow:0 8px 28px rgba(47,43,36,.045)}
+*{box-sizing:border-box}body{margin:0;background:var(--bg);color:var(--ink);font-family:Inter,"Noto Sans JP",system-ui,-apple-system,sans-serif;letter-spacing:.02em}
+button,input,select{font:inherit}button{cursor:pointer}.shell{max-width:1050px;margin:auto;padding:34px 24px 60px}
+header{display:flex;align-items:center;justify-content:space-between;margin-bottom:34px}.brand{font-family:Georgia,serif;font-size:23px;letter-spacing:.04em}.brand small{display:block;font:10px system-ui;color:var(--muted);letter-spacing:.2em;margin-top:4px}.today{font-size:12px;color:var(--muted)}
+h1{font-size:25px;font-weight:550;margin:0 0 7px}.sub{color:var(--muted);font-size:12px;margin:0 0 26px}
+.grid{display:grid;grid-template-columns:1fr 1.05fr;gap:18px}.card{background:var(--paper);border:1px solid var(--line);border-radius:18px;padding:22px;box-shadow:var(--shadow)}
+.card h2{font-size:13px;font-weight:600;margin:0 0 18px;letter-spacing:.08em}.formgrid{display:grid;grid-template-columns:1fr 1fr;gap:12px}.field label{display:block;color:var(--muted);font-size:11px;margin-bottom:7px}.field input,.field select{width:100%;border:1px solid var(--line);border-radius:10px;padding:11px 12px;background:#fff;color:var(--ink);outline:none}.field input:focus,.field select:focus{border-color:#b9c9bd}.wide{grid-column:1/-1}.primary{border:0;background:#c5d3c8;color:#28342c;border-radius:10px;padding:12px 16px;font-size:12px;font-weight:600;width:100%;margin-top:15px}.primary:hover{background:#b6c8bb}
+.stats{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-bottom:18px}.stat{background:#f8f7f4;border-radius:13px;padding:13px}.stat span{display:block;color:var(--muted);font-size:10px;margin-bottom:7px}.stat strong{font-size:20px;font-weight:550}.stat small{font-size:10px;color:var(--muted);margin-left:3px}
+.chart-wrap{height:200px;position:relative}.chart-wrap canvas{width:100%;height:100%}.legend{display:flex;flex-wrap:wrap;gap:9px 14px;margin-top:13px}.legend span{font-size:10px;color:#777}.dot{display:inline-block;width:7px;height:7px;border-radius:50%;margin-right:5px}
+.bottom{display:grid;grid-template-columns:1fr 1fr;gap:18px;margin-top:18px}.entry-list{display:flex;flex-direction:column;gap:9px;max-height:310px;overflow:auto}.entry{display:flex;align-items:center;gap:10px;border-bottom:1px solid #f2efeb;padding:9px 0}.swatch{width:9px;height:34px;border-radius:8px;flex:none}.entry-main{flex:1;min-width:0}.entry-main b{display:block;font-size:12px;font-weight:550}.entry-main small{font-size:10px;color:var(--muted)}.duration{font-size:13px;font-weight:600;white-space:nowrap}.delete{border:0;background:transparent;color:#b4b0aa;font-size:17px;padding:4px 6px}.empty{font-size:12px;color:var(--muted);padding:20px 0;text-align:center}
+.subjects{display:flex;flex-wrap:wrap;gap:8px}.subject-chip{display:flex;align-items:center;gap:7px;border:1px solid var(--line);border-radius:999px;padding:7px 10px;font-size:10px}.subject-chip i{width:8px;height:8px;border-radius:50%}.subject-chip button{border:0;background:none;color:#aaa;padding:0 0 0 3px}
+.add-subject{display:flex;gap:8px;margin-top:13px}.add-subject input{min-width:0;flex:1;border:1px solid var(--line);border-radius:9px;padding:9px 10px;font-size:11px}.add-subject button,.secondary{border:1px solid var(--line);background:#fff;border-radius:9px;padding:8px 12px;font-size:11px;color:#666}
+.actions{display:flex;justify-content:space-between;align-items:center;margin-top:12px}.actions button{font-size:10px}.foot{text-align:center;color:#b3afa8;font-size:10px;margin-top:30px}
+@media(max-width:720px){.shell{padding:24px 15px 45px}.grid,.bottom{grid-template-columns:1fr}.card{padding:18px}.stats{gap:7px}.stat{padding:11px}.stat strong{font-size:18px}header{margin-bottom:28px}}
+</style>
+</head>
+<body>
+<div class="shell">
+<header><div class="brand">study note<small>MY STUDY LOG</small></div><div class="today" id="today"></div></header>
+<h1>今日の積み重ねを、記録しよう。</h1>
+<p class="sub">小さな一歩も、ちゃんと見えるかたちに。</p>
+<div class="grid">
+<section class="card">
+<h2>＋ STUDY LOG</h2>
+<div class="formgrid">
+<div class="field wide"><label for="subject">教科</label><select id="subject"></select></div>
+<div class="field"><label for="date">日付</label><input id="date" type="date"></div>
+<div class="field"><label for="minutes">勉強時間（分）</label><input id="minutes" type="number" min="1" max="1440" placeholder="例：45"></div>
+<div class="field wide"><label for="memo">メモ（任意）</label><input id="memo" maxlength="70" placeholder="例：数学のワーク p.20〜"></div>
+</div>
+<button class="primary" id="add">記録を追加する</button>
+</section>
+<section class="card">
+<h2>YOUR PROGRESS</h2>
+<div class="stats">
+<div class="stat"><span>今日の合計</span><strong id="todayTotal">0</strong><small>分</small></div>
+<div class="stat"><span>今週の合計</span><strong id="weekTotal">0</strong><small>分</small></div>
+<div class="stat"><span>記録した日数</span><strong id="daysTotal">0</strong><small>日</small></div>
+</div>
+<div class="chart-wrap"><canvas id="chart" aria-label="教科ごとの勉強時間グラフ"></canvas></div>
+<div class="legend" id="legend"></div>
+</section>
+</div>
+<div class="bottom">
+<section class="card">
+<h2>SUBJECTS / 教科のカラー</h2>
+<div class="subjects" id="subjects"></div>
+<div class="add-subject"><input id="newSubject" maxlength="12" placeholder="教科名を追加"><button id="addSubject">追加</button></div>
+<p style="font-size:10px;color:#aaa;line-height:1.7;margin:12px 0 0">教科ごとに色を設定できます。記録を追加するとグラフにも自動反映されます。</p>
+</section>
+<section class="card">
+<h2>RECENT LOG / 記録一覧</h2>
+<div class="entry-list" id="entries"></div>
+<div class="actions"><button class="secondary" id="export">CSVを書き出す</button><button class="secondary" id="clear">すべて削除</button></div>
+</section>
+</div>
+<div class="foot">made for your everyday progress ♡</div>
+</div>
+<script>
+const palette=['#c6d6c9','#e8c9c5','#c9d5e5','#e9d9b7','#d7cce5','#c5dadd','#e5cbdc','#d6d5c5'];
+const defaults=[['国語',palette[1]],['数学',palette[2]],['英語',palette[0]],['理科',palette[3]],['社会',palette[4]]];
+let subjects=JSON.parse(localStorage.getItem('study_subjects')||'null')||defaults.map(([name,color])=>({name,color}));
+let logs=JSON.parse(localStorage.getItem('study_logs')||'[]');
+const $=id=>document.getElementById(id);
+const today=new Date();const localDate=d=>{let x=new Date(d.getTime()-d.getTimezoneOffset()*60000);return x.toISOString().slice(0,10)};
+$('today').textContent=today.toLocaleDateString('ja-JP',{year:'numeric',month:'long',day:'numeric',weekday:'short'});
+$('date').value=localDate(today);
+function save(){localStorage.setItem('study_subjects',JSON.stringify(subjects));localStorage.setItem('study_logs',JSON.stringify(logs))}
+function fmt(min){let h=Math.floor(min/60),m=min%60;return h?`${h}時間${m?m+'分':''}`:`${m}分`}
+function renderSubjects(){
+ $('subject').innerHTML=subjects.map(s=>`<option value="${esc(s.name)}">${esc(s.name)}</option>`).join('');
+ $('subjects').innerHTML=subjects.map(s=>`<span class="subject-chip"><i style="background:${s.color}"></i>${esc(s.name)}<button data-remove="${esc(s.name)}" aria-label="${esc(s.name)}を削除">×</button></span>`).join('');
+ $('legend').innerHTML=subjects.map(s=>`<span><i class="dot" style="background:${s.color}"></i>${esc(s.name)}</span>`).join('');
+}
+function esc(s){return String(s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]))}
+function render(){
+ renderSubjects();
+ const todayStr=localDate(new Date());
+ const start=new Date();start.setHours(0,0,0,0);start.setDate(start.getDate()-start.getDay()+1);const weekStart=localDate(start);
+ const todayM=logs.filter(x=>x.date===todayStr).reduce((a,x)=>a+x.minutes,0);
+ const weekM=logs.filter(x=>x.date>=weekStart&&x.date<=todayStr).reduce((a,x)=>a+x.minutes,0);
+ $('todayTotal').textContent=todayM;$('weekTotal').textContent=weekM;$('daysTotal').textContent=new Set(logs.map(x=>x.date)).size;
+ $('entries').innerHTML=logs.slice().sort((a,b)=>(b.date+b.id).localeCompare(a.date+a.id)).slice(0,30).map(x=>{let s=subjects.find(s=>s.name===x.subject);return `<div class="entry"><i class="swatch" style="background:${s?.color||'#ddd'}"></i><div class="entry-main"><b>${esc(x.subject)}${x.memo?' · '+esc(x.memo):''}</b><small>${x.date}</small></div><span class="duration">${fmt(x.minutes)}</span><button class="delete" data-delete="${x.id}" aria-label="削除">×</button></div>`}).join('')||'<div class="empty">まだ記録がありません。最初の記録を追加してみよう ☁</div>';
+ drawChart();
+}
+function drawChart(){
+ const c=$('chart'),r=c.getBoundingClientRect(),dpr=window.devicePixelRatio||1;c.width=r.width*dpr;c.height=r.height*dpr;
+ const ctx=c.getContext('2d');ctx.scale(dpr,dpr);const w=r.width,h=r.height;
+ const totals=subjects.map(s=>({name:s.name,color:s.color,value:logs.filter(x=>x.subject===s.name).reduce((a,x)=>a+x.minutes,0)})).filter(x=>x.value>0);
+ const total=totals.reduce((a,x)=>a+x.value,0);
+ if(!total){ctx.fillStyle='#aaa';ctx.font='12px sans-serif';ctx.textAlign='center';ctx.fillText('記録すると、ここにグラフが表示されます',w/2,h/2);return}
+ let x=10;const y=35,bw=w-20,bh=24;ctx.fillStyle='#f2f0ec';ctx.beginPath();ctx.roundRect(x,y,bw,bh,12);ctx.fill();
+ let offset=x;totals.forEach(t=>{let part=bw*t.value/total;ctx.fillStyle=t.color;ctx.beginPath();ctx.roundRect(offset,y,Math.max(0,part),bh,Math.min(12,part/2));ctx.fill();offset+=part});
+ ctx.fillStyle='#34332f';ctx.font='600 19px sans-serif';ctx.textAlign='left';ctx.fillText(fmt(total),10,105);
+ ctx.fillStyle='#aaa';ctx.font='10px sans-serif';ctx.fillText('これまでの合計勉強時間',10,125);
+ let yy=151;totals.forEach(t=>{ctx.fillStyle=t.color;ctx.beginPath();ctx.arc(15,yy-3,4,0,Math.PI*2);ctx.fill();ctx.fillStyle='#777';ctx.font='10px sans-serif';ctx.fillText(t.name,26,yy);ctx.textAlign='right';ctx.fillText(`${Math.round(t.value/total*100)}% · ${fmt(t.value)}`,w-10,yy);ctx.textAlign='left';yy+=17});
+}
+$('add').onclick=()=>{let subject=$('subject').value,date=$('date').value,minutes=Number($('minutes').value);if(!subject||!date||!Number.isInteger(minutes)||minutes<1||minutes>1440){alert('教科・日付・1〜1440分の勉強時間を入力してください。');return}logs.push({id:Date.now().toString(),subject,date,minutes,memo:$('memo').value.trim()});$('minutes').value='';$('memo').value='';save();render()};
+$('addSubject').onclick=()=>{let name=$('newSubject').value.trim();if(!name||subjects.some(s=>s.name===name))return;subjects.push({name,color:palette[subjects.length%palette.length]});$('newSubject').value='';save();render()};
+$('subjects').onclick=e=>{let name=e.target.dataset.remove;if(!name)return;if(logs.some(x=>x.subject===name)){alert('この教科の記録があるため削除できません。記録を残したまま教科名を維持します。');return}subjects=subjects.filter(s=>s.name!==name);save();render()};
+$('entries').onclick=e=>{let id=e.target.dataset.delete;if(!id)return;if(confirm('この記録を削除しますか？')){logs=logs.filter(x=>x.id!==id);save();render()}};
+$('clear').onclick=()=>{if(confirm('すべての勉強記録を削除しますか？この操作は元に戻せません。')){logs=[];save();render()}};
+$('export').onclick=()=>{let rows=[['日付','教科','勉強時間(分)','メモ'],...logs.map(x=>[x.date,x.subject,x.minutes,x.memo])];let csv='\uFEFF'+rows.map(r=>r.map(v=>'"'+String(v??'').replace(/"/g,'""')+'"').join(',')).join('\r\n');let a=document.createElement('a');a.href=URL.createObjectURL(new Blob([csv],{type:'text/csv;charset=utf-8'}));a.download='study-log.csv';a.click();URL.revokeObjectURL(a.href)};
+window.addEventListener('resize',drawChart);render();
+</script>
+</body></html>
