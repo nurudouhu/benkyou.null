@@ -84,7 +84,7 @@ function esc(s){return String(s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;',
 function render(){
  renderSubjects();
  const todayStr=localDate(new Date());
- const start=new Date();start.setHours(0,0,0,0);start.setDate(start.getDate()-start.getDay()+1);const weekStart=localDate(start);
+ const start=new Date();start.setHours(0,0,0,0);start.setDate(start.getDate()-((start.getDay()+6)%7));const weekStart=localDate(start);
  const todayM=logs.filter(x=>x.date===todayStr).reduce((a,x)=>a+x.minutes,0);
  const weekM=logs.filter(x=>x.date>=weekStart&&x.date<=todayStr).reduce((a,x)=>a+x.minutes,0);
  $('todayTotal').textContent=todayM;$('weekTotal').textContent=weekM;$('daysTotal').textContent=new Set(logs.map(x=>x.date)).size;
